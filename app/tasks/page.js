@@ -64,6 +64,12 @@ export default function TasksPage() {
               className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors">
               + Nový úkol
             </Link>
+            {user?.email === 'admin@taskflow.cz' && (
+  <Link href="/admin"
+    className="bg-[#1a1a1a] hover:bg-[#2a2a2a] text-purple-400 text-sm px-4 py-2 rounded-lg border border-purple-500/30 transition-colors">
+    👑 Admin
+  </Link>
+)}
             <button onClick={handleLogout}
               className="bg-[#1a1a1a] hover:bg-[#2a2a2a] text-gray-300 text-sm px-4 py-2 rounded-lg border border-[#2a2a2a] transition-colors">
               Odhlásit
