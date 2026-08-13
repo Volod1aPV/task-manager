@@ -36,55 +36,56 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f] px-4">
-      <div className="w-full max-w-md bg-[#1a1a1a] rounded-2xl p-8 border border-[#2a2a2a]">
-        <h1 className="text-2xl font-bold text-white mb-2">Přihlášení</h1>
-        <p className="text-gray-400 mb-6 text-sm">Přihlaste se do TaskFlow</p>
+    <div className="gradient-bg flex items-center justify-center px-4" style={{minHeight:'100vh'}}>
+      {/* Glow orbs */}
+      <div style={{position:'fixed',top:'-20%',left:'-10%',width:'500px',height:'500px',background:'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)',pointerEvents:'none'}} />
+      <div style={{position:'fixed',bottom:'-20%',right:'-10%',width:'400px',height:'400px',background:'radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)',pointerEvents:'none'}} />
 
-        {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 rounded-lg p-3 mb-4 text-sm">
-            {error}
+      <div className="fade-in" style={{width:'100%',maxWidth:'420px'}}>
+        {/* Logo */}
+        <div style={{textAlign:'center',marginBottom:'32px'}}>
+          <div style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'56px',height:'56px',background:'linear-gradient(135deg,#7c3aed,#4f46e5)',borderRadius:'16px',marginBottom:'16px',boxShadow:'0 8px 32px rgba(124,58,237,0.4)'}}>
+            <span style={{fontSize:'24px'}}>✓</span>
           </div>
-        )}
+          <h1 style={{fontSize:'28px',fontWeight:'800',background:'linear-gradient(135deg,#fff,#a78bfa)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:'6px'}}>
+            TaskFlow
+          </h1>
+          <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Přihlaste se ke svému účtu</p>
+        </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">Email</label>
-            <input
-              {...register('email')}
-              type="email"
-              placeholder="vas@email.cz"
-              className="w-full bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-            />
-            {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email.message}</p>}
-          </div>
+        {/* Card */}
+        <div className="glass" style={{borderRadius:'24px',padding:'32px'}}>
+          {error && (
+            <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#f87171',borderRadius:'12px',padding:'12px 16px',marginBottom:'20px',fontSize:'14px'}}>
+              ⚠️ {error}
+            </div>
+          )}
 
-          <div>
-            <label className="block text-sm text-gray-300 mb-1">Heslo</label>
-            <input
-              {...register('password')}
-              type="password"
-              placeholder="••••••••"
-              className="w-full bg-[#0f0f0f] border border-[#2a2a2a] rounded-lg px-4 py-2.5 text-white placeholder-gray-600 focus:outline-none focus:border-blue-500"
-            />
-            {errors.password && <p className="text-red-400 text-xs mt-1">{errors.password.message}</p>}
-          </div>
+          <form onSubmit={handleSubmit(onSubmit)} style={{display:'flex',flexDirection:'column',gap:'16px'}}>
+            <div>
+              <label className="label">Email</label>
+              <input {...register('email')} type="email" placeholder="vas@email.cz" className="input-field" />
+              {errors.email && <p className="error-msg">{errors.email.message}</p>}
+            </div>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors disabled:opacity-50"
-          >
-            {isSubmitting ? 'Přihlašování...' : 'Přihlásit se'}
-          </button>
-        </form>
+            <div>
+              <label className="label">Heslo</label>
+              <input {...register('password')} type="password" placeholder="••••••••" className="input-field" />
+              {errors.password && <p className="error-msg">{errors.password.message}</p>}
+            </div>
 
-        <p className="text-center text-gray-500 text-sm mt-6">
-          Nemáte účet?{' '}
-          <Link href="/register" className="text-blue-400 hover:text-blue-300">
-            Zaregistrujte se
-          </Link>
-        </p>
+            <button type="submit" disabled={isSubmitting} className="btn-primary" style={{width:'100%',marginTop:'8px',fontSize:'15px',padding:'13px'}}>
+              {isSubmitting ? 'Přihlašování...' : 'Přihlásit se →'}
+            </button>
+          </form>
+
+          <p style={{textAlign:'center',color:'rgba(255,255,255,0.35)',fontSize:'13px',marginTop:'24px'}}>
+            Nemáte účet?{' '}
+            <Link href="/register" style={{color:'#a78bfa',fontWeight:'500'}}>
+              Zaregistrujte se
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   )

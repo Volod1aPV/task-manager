@@ -14,11 +14,7 @@ export default function TaskDetailPage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('id', id)
-        .single()
+      const { data } = await supabase.from('tasks').select('*').eq('id', id).single()
       setTask(data)
       setLoading(false)
     }
@@ -38,78 +34,73 @@ export default function TaskDetailPage() {
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f]">
-      <p className="text-gray-400">Načítání...</p>
+    <div className="gradient-bg" style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <div style={{width:'40px',height:'40px',border:'3px solid rgba(124,58,237,0.3)',borderTopColor:'#7c3aed',borderRadius:'50%',animation:'spin 0.8s linear infinite'}} />
+      <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
 
   if (!task) return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f0f]">
-      <p className="text-gray-400">Úkol nenalezen</p>
+    <div className="gradient-bg" style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
+      <p style={{color:'rgba(255,255,255,0.4)'}}>Úkol nenalezen</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#0f0f0f] px-4 py-8">
-      <div className="max-w-lg mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Link href="/tasks" className="text-gray-400 hover:text-white transition-colors">
-            ← Zpět
-          </Link>
-          <h1 className="text-xl font-bold text-white">Detail úkolu</h1>
-        </div>
+    <div className="gradient-bg" style={{minHeight:'100vh',padding:'32px 16px'}}>
+      <div style={{position:'fixed',top:'-20%',right:'-10%',width:'500px',height:'500px',background:'radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)',pointerEvents:'none'}} />
 
-        <div className="bg-[#1a1a1a] rounded-2xl p-6 border border-[#2a2a2a]">
-          {/* Status badge */}
-          <div className="flex items-center gap-2 mb-4">
-            <span className={`text-xs px-2 py-1 rounded-full font-medium ${
-              task.status === 'done'
-                ? 'bg-green-500/20 text-green-400'
-                : 'bg-yellow-500/20 text-yellow-400'
-            }`}>
-              {task.status === 'done' ? '✓ Splněno' : '⏳ Čeká'}
+      <div style={{maxWidth:'560px',margin:'0 auto'}} className="fade-in">
+        <Link href="/tasks" style={{display:'inline-flex',alignItems:'center',gap:'6px',color:'rgba(255,255,255,0.4)',fontSize:'14px',marginBottom:'24px'}}>
+          ← Zpět na úkoly
+        </Link>
+
+        <div className="glass" style={{borderRadius:'24px',padding:'32px'}}>
+          {/* Status */}
+          <div style={{marginBottom:'20px'}}>
+            <span className={task.status === 'done' ? 'badge-done' : 'badge-pending'}>
+              {task.status === 'done' ? '✓ Splněno' : '⏳ Čeká na splnění'}
             </span>
           </div>
 
-          <h2 className={`text-xl font-bold mb-3 ${
-            task.status === 'done' ? 'line-through text-gray-500' : 'text-white'
-          }`}>
+          {/* Title */}
+          <h1 style={{fontSize:'22px',fontWeight:'800',color:task.status==='done'?'rgba(255,255,255,0.3)':'white',textDecoration:task.status==='done'?'line-through':'none',marginBottom:'12px',lineHeight:'1.3'}}>
             {task.title}
-          </h2>
+          </h1>
 
+          {/* Description */}
           {task.description && (
-            <p className="text-gray-400 text-sm mb-4 leading-relaxed">{task.description}</p>
-          )}
-
-          {task.due_date && (
-            <p className="text-gray-500 text-sm mb-6">
-              📅 Datum splnění: {new Date(task.due_date).toLocaleDateString('cs-CZ')}
+            <p style={{color:'rgba(255,255,255,0.5)',fontSize:'15px',lineHeight:'1.7',marginBottom:'20px'}}>
+              {task.description}
             </p>
           )}
 
-          <p className="text-gray-600 text-xs mb-6">
-            Vytvořeno: {new Date(task.created_at).toLocaleString('cs-CZ')}
-          </p>
+          {/* Meta */}
+          <div style={{display:'flex',flexDirection:'column',gap:'8px',marginBottom:'28px',paddingBottom:'24px',borderBottom:'1px solid rgba(255,255,255,0.07)'}}>
+            {task.due_date && (
+              <div style={{display:'flex',alignItems:'center',gap:'8px',color:'rgba(255,255,255,0.4)',fontSize:'13px'}}>
+                <span>📅</span>
+                <span>Datum splnění: {new Date(task.due_date).toLocaleDateString('cs-CZ')}</span>
+              </div>
+            )}
+            <div style={{display:'flex',alignItems:'center',gap:'8px',color:'rgba(255,255,255,0.3)',fontSize:'13px'}}>
+              <span>🕐</span>
+              <span>Vytvořeno: {new Date(task.created_at).toLocaleString('cs-CZ')}</span>
+            </div>
+          </div>
 
           {/* Actions */}
-          <div className="flex flex-col gap-2">
-            <button onClick={handleToggle}
-              className={`w-full font-medium py-2.5 rounded-lg transition-colors ${
-                task.status === 'done'
-                  ? 'bg-yellow-600/20 hover:bg-yellow-600/30 text-yellow-400'
-                  : 'bg-green-600/20 hover:bg-green-600/30 text-green-400'
-              }`}>
+          <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
+            <button onClick={handleToggle} style={{width:'100%',padding:'12px',borderRadius:'12px',border:'none',cursor:'pointer',fontFamily:'Inter,sans-serif',fontWeight:'600',fontSize:'14px',transition:'all 0.2s',background:task.status==='done'?'rgba(251,191,36,0.1)':'rgba(52,211,153,0.1)',color:task.status==='done'?'#fbbf24':'#34d399',border:task.status==='done'?'1px solid rgba(251,191,36,0.2)':'1px solid rgba(52,211,153,0.2)'}}>
               {task.status === 'done' ? '↩ Označit jako nesplněný' : '✓ Označit jako splněný'}
             </button>
 
-            <Link href={`/tasks/${id}/edit`}
-              className="w-full text-center bg-blue-600 hover:bg-blue-700 text-white font-medium py-2.5 rounded-lg transition-colors">
-              Upravit úkol
+            <Link href={`/tasks/${id}/edit`} className="btn-primary" style={{display:'block',textAlign:'center',padding:'12px',borderRadius:'12px',fontSize:'14px'}}>
+              ✏️ Upravit úkol
             </Link>
 
-            <button onClick={handleDelete}
-              className="w-full bg-red-500/10 hover:bg-red-500/20 text-red-400 font-medium py-2.5 rounded-lg transition-colors">
-              Smazat úkol
+            <button onClick={handleDelete} style={{width:'100%',padding:'12px',borderRadius:'12px',border:'1px solid rgba(239,68,68,0.2)',background:'rgba(239,68,68,0.08)',color:'#f87171',cursor:'pointer',fontFamily:'Inter,sans-serif',fontWeight:'600',fontSize:'14px',transition:'all 0.2s'}}>
+              🗑️ Smazat úkol
             </button>
           </div>
         </div>
