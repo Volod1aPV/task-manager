@@ -31,34 +31,47 @@ export default function RegisterPage() {
       email: data.email,
       password: data.password,
     })
-    if (error) {
-      setError(error.message)
-    } else {
-      router.push('/tasks')
-      router.refresh()
-    }
+    if (error) setError(error.message)
+    else { router.push('/tasks'); router.refresh() }
   }
 
   return (
-    <div className="gradient-bg flex items-center justify-center px-4" style={{minHeight:'100vh'}}>
-      <div style={{position:'fixed',top:'-20%',right:'-10%',width:'500px',height:'500px',background:'radial-gradient(circle, rgba(124,58,237,0.15) 0%, transparent 70%)',pointerEvents:'none'}} />
-      <div style={{position:'fixed',bottom:'-20%',left:'-10%',width:'400px',height:'400px',background:'radial-gradient(circle, rgba(79,70,229,0.1) 0%, transparent 70%)',pointerEvents:'none'}} />
+    <div style={{minHeight:'100vh',display:'flex',background:'#f7f7f8'}}>
+      {/* LEFT */}
+      <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'48px',position:'relative',overflow:'hidden'}}>
+        <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 60%)',pointerEvents:'none'}} />
 
-      <div className="fade-in" style={{width:'100%',maxWidth:'420px'}}>
-        <div style={{textAlign:'center',marginBottom:'32px'}}>
-          <div style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:'56px',height:'56px',background:'linear-gradient(135deg,#7c3aed,#4f46e5)',borderRadius:'16px',marginBottom:'16px',boxShadow:'0 8px 32px rgba(124,58,237,0.4)'}}>
-            <span style={{fontSize:'24px'}}>✦</span>
+        <div style={{position:'relative',zIndex:1}}>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <div style={{width:'36px',height:'36px',background:'white',borderRadius:'10px',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'16px',fontWeight:'800',color:'#111827'}}>T</div>
+            <span style={{color:'white',fontWeight:'700',fontSize:'18px'}}>TaskFlow</span>
           </div>
-          <h1 style={{fontSize:'28px',fontWeight:'800',background:'linear-gradient(135deg,#fff,#a78bfa)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',marginBottom:'6px'}}>
-            TaskFlow
-          </h1>
-          <p style={{color:'rgba(255,255,255,0.4)',fontSize:'14px'}}>Vytvořte si nový účet</p>
         </div>
 
-        <div className="glass" style={{borderRadius:'24px',padding:'32px'}}>
+        <div style={{position:'relative',zIndex:1}}>
+          <h1 style={{fontSize:'40px',fontWeight:'800',color:'white',lineHeight:'1.2',marginBottom:'16px'}}>
+            Začněte ještě<br />
+            <span style={{color:'#a78bfa'}}>dnes zdarma.</span>
+          </h1>
+          <p style={{color:'rgba(255,255,255,0.45)',fontSize:'15px',lineHeight:'1.7',maxWidth:'300px'}}>
+            Registrace zabere méně než minutu. Žádná kreditní karta není potřeba.
+          </p>
+        </div>
+
+        <p style={{color:'rgba(255,255,255,0.2)',fontSize:'12px',position:'relative',zIndex:1}}>© 2026 TaskFlow</p>
+      </div>
+
+      {/* RIGHT */}
+      <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'40px'}}>
+        <div className="fade-in" style={{width:'100%',maxWidth:'380px'}}>
+          <div style={{marginBottom:'32px'}}>
+            <h2 style={{fontSize:'26px',fontWeight:'800',color:'#111827',marginBottom:'6px'}}>Vytvořit účet</h2>
+            <p style={{color:'#6b7280',fontSize:'14px'}}>Připojte se k TaskFlow ještě dnes.</p>
+          </div>
+
           {error && (
-            <div style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#f87171',borderRadius:'12px',padding:'12px 16px',marginBottom:'20px',fontSize:'14px'}}>
-              ⚠️ {error}
+            <div style={{background:'#fff1f2',border:'1px solid #fecdd3',color:'#e11d48',borderRadius:'10px',padding:'12px 14px',marginBottom:'20px',fontSize:'13px'}}>
+              {error}
             </div>
           )}
 
@@ -68,29 +81,25 @@ export default function RegisterPage() {
               <input {...register('email')} type="email" placeholder="vas@email.cz" className="input-field" />
               {errors.email && <p className="error-msg">{errors.email.message}</p>}
             </div>
-
             <div>
               <label className="label">Heslo</label>
               <input {...register('password')} type="password" placeholder="••••••••" className="input-field" />
               {errors.password && <p className="error-msg">{errors.password.message}</p>}
             </div>
-
             <div>
               <label className="label">Potvrdit heslo</label>
               <input {...register('confirmPassword')} type="password" placeholder="••••••••" className="input-field" />
               {errors.confirmPassword && <p className="error-msg">{errors.confirmPassword.message}</p>}
             </div>
 
-            <button type="submit" disabled={isSubmitting} className="btn-primary" style={{width:'100%',marginTop:'8px',fontSize:'15px',padding:'13px'}}>
-              {isSubmitting ? 'Registrace...' : 'Zaregistrovat se →'}
+            <button type="submit" disabled={isSubmitting} className="btn-primary" style={{width:'100%',padding:'12px',fontSize:'15px',marginTop:'4px'}}>
+              {isSubmitting ? 'Registrace...' : 'Vytvořit účet →'}
             </button>
           </form>
 
-          <p style={{textAlign:'center',color:'rgba(255,255,255,0.35)',fontSize:'13px',marginTop:'24px'}}>
+          <p style={{textAlign:'center',color:'#9ca3af',fontSize:'13px',marginTop:'24px'}}>
             Již máte účet?{' '}
-            <Link href="/login" style={{color:'#a78bfa',fontWeight:'500'}}>
-              Přihlaste se
-            </Link>
+            <Link href="/login" style={{color:'#111827',fontWeight:'600'}}>Přihlaste se</Link>
           </p>
         </div>
       </div>

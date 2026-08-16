@@ -5,10 +5,83 @@ import { createClient } from '../lib/supabase'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
+function CalendarView({ tasks }) {
+  const [current, setCurrent] = useState(new Date())
+
+  const year = current.getFullYear()
+  const month = current.getMonth()
+
+  const firstDay = new Date(year, month, 1).getDay()
+  const daysInMonth = new Date(year, month + 1, 0).getDate()
+  const startOffset = (firstDay + 6) % 7
+
+  const monthNames = ['Leden','Únor','Březen','Duben','Květen','Červen','Červenec','Srpen','Září','Říjen','Listopad','Prosinec']
+  const dayNames = ['Po','Út','St','Čt','Pá','So','Ne']
+
+  const today = new Date()
+
+  function getTasksForDay(day) {
+    return tasks.filter(t => {
+      if (!t.due_date) return false
+      const d = new Date(t.due_date)
+      return d.getFullYear() === year && d.getMonth() === month && d.getDate() === day
+    })
+  }
+
+  const cells = []
+  for (let i = 0; i < startOffset; i++) cells.push(null)
+  for (let i = 1; i <= daysInMonth; i++) cells.push(i)
+
+  return (
+    <div className="card" style={{padding:'24px'}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'20px'}}>
+        <button onClick={() => setCurrent(new Date(year, month-1, 1))} style={{width:'32px',height:'32px',borderRadius:'8px',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:'16px',color:'var(--text-muted)',display:'flex',alignItems:'center',justifyContent:'center'}}>‹</button>
+        <h3 style={{fontWeight:'700',fontSize:'16px',color:'var(--text-primary)'}}>{monthNames[month]} {year}</h3>
+        <button onClick={() => setCurrent(new Date(year, month+1, 1))} style={{width:'32px',height:'32px',borderRadius:'8px',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:'16px',color:'var(--text-muted)',display:'flex',alignItems:'center',justifyContent:'center'}}>›</button>
+      </div>
+
+      {/* Day names */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'4px',marginBottom:'4px'}}>
+        {dayNames.map(d => (
+          <div key={d} style={{textAlign:'center',fontSize:'12px',fontWeight:'600',color:'var(--text-faint)',padding:'4px 0'}}>{d}</div>
+        ))}
+      </div>
+
+      {/* Days */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'4px'}}>
+        {cells.map((day, i) => {
+          if (!day) return <div key={i} />
+          const dayTasks = getTasksForDay(day)
+          const isToday = today.getFullYear()===year && today.getMonth()===month && today.getDate()===day
+          return (
+            <div key={i} style={{minHeight:'64px',borderRadius:'10px',padding:'6px',border:`1px solid ${isToday?'#111827':'var(--border-light)'}`,background:isToday?'var(--btn-bg)':'var(--bg)',cursor:'default',transition:'all 0.2s'}}>
+              <p style={{fontSize:'12px',fontWeight:isToday?'800':'500',color:isToday?'var(--btn-text)':'var(--text-muted)',marginBottom:'4px',textAlign:'right'}}>{day}</p>
+              <div style={{display:'flex',flexDirection:'column',gap:'2px'}}>
+                {dayTasks.slice(0,2).map(t => (
+                  <Link key={t.id} href={`/tasks/${t.id}`}>
+                    <div style={{fontSize:'10px',fontWeight:'500',padding:'2px 5px',borderRadius:'4px',background:t.status==='done'?'#dcfce7':'#dbeafe',color:t.status==='done'?'#16a34a':'#1d4ed8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',cursor:'pointer'}}>
+                      {t.title}
+                    </div>
+                  </Link>
+                ))}
+                {dayTasks.length > 2 && (
+                  <p style={{fontSize:'10px',color:'var(--text-faint)'}}>+{dayTasks.length - 2}</p>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
 export default function TasksPage() {
   const [tasks, setTasks] = useState([])
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState(null)
+  const [view, setView] = useState('list')
   const router = useRouter()
   const supabase = createClient()
 
@@ -16,10 +89,7 @@ export default function TasksPage() {
     async function load() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
-      const { data } = await supabase
-        .from('tasks')
-        .select('*')
-        .order('created_at', { ascending: false })
+      const { data } = await supabase.from('tasks').select('*').order('created_at', { ascending: false })
       setTasks(data || [])
       setLoading(false)
     }
@@ -46,111 +116,136 @@ export default function TasksPage() {
 
   const done = tasks.filter(t => t.status === 'done').length
   const pending = tasks.filter(t => t.status === 'pending').length
+  const donePercent = tasks.length > 0 ? Math.round((done / tasks.length) * 100) : 0
 
   if (loading) return (
-    <div className="gradient-bg" style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center'}}>
-      <div style={{textAlign:'center'}}>
-        <div style={{width:'40px',height:'40px',border:'3px solid rgba(124,58,237,0.3)',borderTopColor:'#7c3aed',borderRadius:'50%',animation:'spin 0.8s linear infinite',margin:'0 auto 16px'}} />
-        <p style={{color:'rgba(255,255,255,0.4)'}}>Načítání...</p>
-      </div>
+    <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',background:'var(--bg)'}}>
+      <div style={{width:'32px',height:'32px',border:'2.5px solid var(--border)',borderTopColor:'var(--text-primary)',borderRadius:'50%',animation:'spin 0.7s linear infinite'}} />
       <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
     </div>
   )
 
   return (
-    <div className="gradient-bg" style={{minHeight:'100vh',padding:'32px 16px'}}>
-      <div style={{position:'fixed',top:'-20%',left:'-10%',width:'600px',height:'600px',background:'radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)',pointerEvents:'none'}} />
-      <div style={{position:'fixed',bottom:'-20%',right:'-10%',width:'400px',height:'400px',background:'radial-gradient(circle, rgba(79,70,229,0.08) 0%, transparent 70%)',pointerEvents:'none'}} />
-
-      <div style={{maxWidth:'680px',margin:'0 auto'}} className="fade-in">
-        {/* Header */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:'32px'}}>
-          <div>
-            <h1 style={{fontSize:'26px',fontWeight:'800',background:'linear-gradient(135deg,#fff,#a78bfa)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent'}}>
-              TaskFlow
-            </h1>
-            <p style={{color:'rgba(255,255,255,0.35)',fontSize:'13px',marginTop:'2px'}}>{user?.email}</p>
-          </div>
-          <div style={{display:'flex',gap:'8px',alignItems:'center'}}>
-            {user?.email === 'admin@taskflow.cz' && (
-              <Link href="/admin" style={{background:'rgba(139,92,246,0.15)',border:'1px solid rgba(139,92,246,0.3)',color:'#a78bfa',fontSize:'13px',padding:'8px 14px',borderRadius:'10px',fontWeight:'500',transition:'all 0.2s'}}>
-                👑 Admin
-              </Link>
-            )}
-            <Link href="/tasks/new" style={{background:'linear-gradient(135deg,#7c3aed,#4f46e5)',color:'white',fontSize:'13px',fontWeight:'600',padding:'8px 16px',borderRadius:'10px',boxShadow:'0 4px 16px rgba(124,58,237,0.3)'}}>
-              + Nový úkol
-            </Link>
-            <button onClick={handleLogout} style={{background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',color:'rgba(255,255,255,0.4)',fontSize:'13px',padding:'8px 14px',borderRadius:'10px',cursor:'pointer',fontFamily:'Inter,sans-serif'}}>
-              Odhlásit
-            </button>
-          </div>
+    <div style={{minHeight:'100vh',background:'var(--bg)'}}>
+      {/* Navbar */}
+      <nav style={{background:'var(--bg-card)',borderBottom:'1px solid var(--border)',padding:'0 32px',height:'60px',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,zIndex:10}}>
+        <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+          <div style={{width:'30px',height:'30px',background:'var(--btn-bg)',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--btn-text)',fontWeight:'800',fontSize:'14px'}}>T</div>
+          <span style={{fontWeight:'700',fontSize:'16px',color:'var(--text-primary)'}}>TaskFlow</span>
         </div>
+        <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
+          <span style={{color:'var(--text-faint)',fontSize:'13px'}}>{user?.email}</span>
+          {user?.email === 'admin@taskflow.cz' && (
+            <Link href="/admin" style={{fontSize:'13px',fontWeight:'500',color:'#7c3aed',background:'#f5f3ff',border:'1px solid #ede9fe',padding:'5px 12px',borderRadius:'8px'}}>
+              👑 Admin
+            </Link>
+          )}
+          <Link href="/tasks/new" className="btn-primary" style={{padding:'7px 14px',fontSize:'13px',borderRadius:'8px'}}>
+            + Nový úkol
+          </Link>
+          <button onClick={handleLogout} className="btn-secondary" style={{padding:'7px 14px',fontSize:'13px',borderRadius:'8px'}}>
+            Odhlásit
+          </button>
+        </div>
+      </nav>
 
-        {/* Stats */}
+      <div style={{maxWidth:'800px',margin:'0 auto',padding:'32px 16px'}} className="fade-in">
+        {/* Progress */}
         {tasks.length > 0 && (
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'12px',marginBottom:'24px'}}>
-            {[
-              {label:'Celkem',value:tasks.length,color:'#a78bfa'},
-              {label:'Splněno',value:done,color:'#34d399'},
-              {label:'Čeká',value:pending,color:'#fbbf24'},
-            ].map(s => (
-              <div key={s.label} className="glass" style={{borderRadius:'16px',padding:'16px',textAlign:'center'}}>
-                <p style={{fontSize:'28px',fontWeight:'800',color:s.color}}>{s.value}</p>
-                <p style={{fontSize:'12px',color:'rgba(255,255,255,0.4)',marginTop:'2px'}}>{s.label}</p>
+          <div className="card" style={{padding:'20px',marginBottom:'20px'}}>
+            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'10px'}}>
+              <div>
+                <p style={{fontSize:'13px',color:'var(--text-muted)',marginBottom:'2px'}}>Celkový progres</p>
+                <p style={{fontSize:'20px',fontWeight:'800',color:'var(--text-primary)'}}>{donePercent}% <span style={{fontSize:'13px',fontWeight:'400',color:'var(--text-faint)'}}>splněno</span></p>
               </div>
-            ))}
+              <div style={{display:'flex',gap:'20px',textAlign:'center'}}>
+                <div>
+                  <p style={{fontSize:'20px',fontWeight:'800',color:'#16a34a'}}>{done}</p>
+                  <p style={{fontSize:'11px',color:'var(--text-faint)'}}>Splněno</p>
+                </div>
+                <div style={{width:'1px',background:'var(--border)'}} />
+                <div>
+                  <p style={{fontSize:'20px',fontWeight:'800',color:'#d97706'}}>{pending}</p>
+                  <p style={{fontSize:'11px',color:'var(--text-faint)'}}>Čeká</p>
+                </div>
+              </div>
+            </div>
+            <div style={{height:'5px',background:'var(--border)',borderRadius:'99px',overflow:'hidden'}}>
+              <div style={{width:`${donePercent}%`,height:'100%',background:'var(--btn-bg)',borderRadius:'99px',transition:'width 0.6s ease'}} />
+            </div>
           </div>
         )}
 
-        {/* Tasks */}
-        {tasks.length === 0 ? (
-          <div className="glass" style={{borderRadius:'24px',padding:'60px 32px',textAlign:'center'}}>
-            <div style={{fontSize:'48px',marginBottom:'16px'}}>📝</div>
-            <p style={{color:'rgba(255,255,255,0.5)',marginBottom:'20px'}}>Zatím žádné úkoly</p>
-            <Link href="/tasks/new" className="btn-primary" style={{display:'inline-block',padding:'10px 24px',borderRadius:'12px'}}>
-              Přidat první úkol
-            </Link>
-          </div>
-        ) : (
-          <div style={{display:'flex',flexDirection:'column',gap:'10px'}}>
-            {tasks.map((task, i) => (
-              <div key={task.id} className="glass glass-hover" style={{borderRadius:'16px',padding:'16px 20px',display:'flex',alignItems:'center',gap:'14px',animationDelay:`${i*0.05}s`}}>
-                {/* Toggle */}
-                <button onClick={() => handleToggle(task)} style={{width:'22px',height:'22px',borderRadius:'50%',border:`2px solid ${task.status==='done'?'#34d399':'rgba(255,255,255,0.2)'}`,background:task.status==='done'?'#34d399':'transparent',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.2s'}}>
-                  {task.status === 'done' && <span style={{color:'#060612',fontSize:'12px',fontWeight:'800'}}>✓</span>}
-                </button>
-
-                {/* Content */}
-                <div style={{flex:1,minWidth:0}}>
-                  <Link href={`/tasks/${task.id}`}>
-                    <p style={{fontWeight:'600',fontSize:'15px',color:task.status==='done'?'rgba(255,255,255,0.3)':'white',textDecoration:task.status==='done'?'line-through':'none',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',transition:'all 0.2s'}}>
-                      {task.title}
-                    </p>
-                  </Link>
-                  {task.due_date && (
-                    <p style={{fontSize:'12px',color:'rgba(255,255,255,0.3)',marginTop:'3px'}}>
-                      📅 {new Date(task.due_date).toLocaleDateString('cs-CZ')}
-                    </p>
-                  )}
-                </div>
-
-                {/* Status */}
-                <span className={task.status === 'done' ? 'badge-done' : 'badge-pending'}>
-                  {task.status === 'done' ? 'Splněno' : 'Čeká'}
-                </span>
-
-                {/* Actions */}
-                <div style={{display:'flex',gap:'6px',flexShrink:0}}>
-                  <Link href={`/tasks/${task.id}/edit`} style={{fontSize:'12px',color:'rgba(255,255,255,0.4)',padding:'5px 10px',borderRadius:'8px',background:'rgba(255,255,255,0.05)',border:'1px solid rgba(255,255,255,0.08)',transition:'all 0.2s'}}>
-                    Upravit
-                  </Link>
-                  <button onClick={() => handleDelete(task.id)} style={{fontSize:'12px',color:'#f87171',padding:'5px 10px',borderRadius:'8px',background:'rgba(239,68,68,0.08)',border:'1px solid rgba(239,68,68,0.15)',cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s'}}>
-                    Smazat
-                  </button>
-                </div>
-              </div>
+        {/* View toggle */}
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:'12px'}}>
+          <h2 style={{fontSize:'15px',fontWeight:'600',color:'var(--text-secondary)'}}>
+            Moje úkoly <span style={{color:'var(--text-faint)',fontWeight:'400'}}>({tasks.length})</span>
+          </h2>
+          <div style={{display:'flex',background:'var(--bg-card)',border:'1px solid var(--border)',borderRadius:'10px',padding:'3px',gap:'2px'}}>
+            {[{id:'list',label:'☰ Seznam'},{id:'calendar',label:'📅 Kalendář'}].map(v => (
+              <button key={v.id} onClick={() => setView(v.id)} style={{padding:'6px 14px',borderRadius:'7px',border:'none',cursor:'pointer',fontSize:'13px',fontWeight:'500',fontFamily:'Inter,sans-serif',background:view===v.id?'var(--btn-bg)':'transparent',color:view===v.id?'var(--btn-text)':'var(--text-muted)',transition:'all 0.2s'}}>
+                {v.label}
+              </button>
             ))}
           </div>
+        </div>
+
+        {/* Calendar View */}
+        {view === 'calendar' && <CalendarView tasks={tasks} />}
+
+        {/* List View */}
+        {view === 'list' && (
+          tasks.length === 0 ? (
+            <div className="card" style={{padding:'60px 32px',textAlign:'center'}}>
+              <div style={{fontSize:'40px',marginBottom:'16px'}}>📋</div>
+              <p style={{color:'var(--text-muted)',fontWeight:'500',marginBottom:'6px'}}>Žádné úkoly</p>
+              <p style={{color:'var(--text-faint)',fontSize:'13px',marginBottom:'24px'}}>Přidejte svůj první úkol</p>
+              <Link href="/tasks/new" className="btn-primary" style={{padding:'10px 20px'}}>+ Přidat úkol</Link>
+            </div>
+          ) : (
+            <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
+              {tasks.map((task, i) => (
+                <div key={task.id} className="card" style={{padding:'14px 18px',display:'flex',alignItems:'center',gap:'12px',transition:'box-shadow 0.2s',animationDelay:`${i*0.04}s`}}
+                  onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'}
+                  onMouseLeave={e => e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'}>
+
+                  <button onClick={() => handleToggle(task)} style={{width:'20px',height:'20px',borderRadius:'6px',border:`2px solid ${task.status==='done'?'#16a34a':'var(--border)'}`,background:task.status==='done'?'#16a34a':'transparent',cursor:'pointer',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',transition:'all 0.2s'}}>
+                    {task.status === 'done' && <span style={{color:'white',fontSize:'11px',fontWeight:'800'}}>✓</span>}
+                  </button>
+
+                  <div style={{flex:1,minWidth:0}}>
+                    <Link href={`/tasks/${task.id}`}>
+                      <p style={{fontWeight:'500',fontSize:'14px',color:task.status==='done'?'var(--text-faint)':'var(--text-primary)',textDecoration:task.status==='done'?'line-through':'none',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                        {task.title}
+                      </p>
+                    </Link>
+                    {task.due_date && (
+                      <p style={{fontSize:'12px',color:'var(--text-faint)',marginTop:'2px'}}>
+                        📅 {new Date(task.due_date).toLocaleDateString('cs-CZ')}
+                      </p>
+                    )}
+                  </div>
+
+                  {(() => {
+  const p = {low:{icon:'🟢',color:'#16a34a'},medium:{icon:'🟡',color:'#d97706'},high:{icon:'🔴',color:'#e11d48'}}[task.priority||'medium']
+  return <span style={{fontSize:'14px'}} title={task.priority}>{p.icon}</span>
+})()}
+                  <span className={task.status==='done'?'badge-done':'badge-pending'}>
+                    {task.status==='done'?'Splněno':'Čeká'}
+                  </span>
+
+                  <div style={{display:'flex',gap:'4px'}}>
+                    <Link href={`/tasks/${task.id}/edit`} style={{fontSize:'12px',color:'var(--text-muted)',padding:'5px 10px',borderRadius:'7px',border:'1px solid var(--border)',background:'var(--bg)',transition:'all 0.2s'}}>
+                      Upravit
+                    </Link>
+                    <button onClick={() => handleDelete(task.id)} style={{fontSize:'12px',color:'#e11d48',padding:'5px 10px',borderRadius:'7px',border:'1px solid #fecdd3',background:'#fff1f2',cursor:'pointer',fontFamily:'Inter,sans-serif',transition:'all 0.2s'}}>
+                      Smazat
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )
         )}
       </div>
     </div>
