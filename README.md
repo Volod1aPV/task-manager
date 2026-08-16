@@ -1,36 +1,50 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# TaskFlow 📋
 
-## Getting Started
+Webová aplikace pro správu úkolů vytvořená s Next.js a Supabase.
 
-First, run the development server:
+## 🚀 Technologie
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Frontend:** Next.js 16 (App Router), Tailwind CSS
+- **Backend:** Supabase (PostgreSQL + Auth)
+- **Formuláře:** React Hook Form + Zod
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## ✨ Funkce
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- 🔐 Registrace a přihlášení uživatelů
+- ✅ Vytváření, úprava a mazání úkolů
+- 📅 Datum splnění pro každý úkol
+- 🔄 Označení úkolu jako splněného/nesplněného
+- 👑 Admin panel pro správce
+- 🔒 Ochrana stránek (pouze přihlášení uživatelé)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Instalace
 
-## Learn More
+1. Klonování repozitáře
+   git clone https://github.com/Volod1aPV/task-manager.git
+   cd task-manager
 
-To learn more about Next.js, take a look at the following resources:
+2. Instalace závislostí
+   npm install
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Vytvořte soubor .env.local
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Spuštění vývojového serveru
+   npm run dev
 
-## Deploy on Vercel
+## 📁 Struktura projektu
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+app/
+├── admin/          # Admin panel
+├── lib/            # Supabase klient
+├── login/          # Přihlašovací stránka
+├── register/       # Registrační stránka
+└── tasks/          # Správa úkolů
+    ├── [id]/       # Detail úkolu
+    │   └── edit/   # Úprava úkolu
+    └── new/        # Nový úkol
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👤 Autor
+
+Volodymyr Panovyk — https://github.com/Volod1aPV
