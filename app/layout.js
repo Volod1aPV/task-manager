@@ -1,19 +1,24 @@
-import { Geist } from 'next/font/google'
 import './globals.css'
-
-const geist = Geist({ subsets: ['latin'] })
 
 export const metadata = {
   title: 'TaskFlow',
-  description: 'Webová aplikace pro správu úkolů',
+  description: 'Správa úkolů',
 }
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="cs">
-      <body className={geist.className}>
-        {children}
-      </body>
+    <html lang="cs" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{__html: `
+          (function() {
+            try {
+              var theme = localStorage.getItem('theme') || 'light';
+              document.documentElement.setAttribute('data-theme', theme);
+            } catch(e) {}
+          })();
+        `}} />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }

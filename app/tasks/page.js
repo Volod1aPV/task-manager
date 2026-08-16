@@ -78,6 +78,7 @@ export default function TasksPage() {
   const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [filterPriority, setFilterPriority] = useState('all')
+  const [theme, setTheme] = useState('light')
   const router = useRouter()
   const supabase = createClient()
 
@@ -91,6 +92,18 @@ export default function TasksPage() {
     }
     load()
   }, [])
+
+  useEffect(() => {
+  const saved = localStorage.getItem('theme') || 'light'
+  setTheme(saved)
+}, [])
+
+function toggleTheme() {
+  const next = theme === 'light' ? 'dark' : 'light'
+  setTheme(next)
+  localStorage.setItem('theme', next)
+  document.documentElement.setAttribute('data-theme', next)
+}
 
   const filtered = useMemo(() => {
     return tasks.filter(t => {
@@ -144,6 +157,9 @@ export default function TasksPage() {
             <Link href="/admin" style={{fontSize:'13px',fontWeight:'500',color:'#7c3aed',background:'#f5f3ff',border:'1px solid #ede9fe',padding:'5px 12px',borderRadius:'8px'}}>👑 Admin</Link>
           )}
           <Link href="/tasks/new" className="btn-primary" style={{padding:'7px 14px',fontSize:'13px',borderRadius:'8px'}}>+ Nový úkol</Link>
+          <button onClick={toggleTheme} style={{width:'36px',height:'36px',borderRadius:'8px',border:'1px solid var(--border)',background:'var(--bg)',cursor:'pointer',fontSize:'16px',display:'flex',alignItems:'center',justifyContent:'center'}}>
+  {theme === 'light' ? '🌙' : '☀️'}
+</button>
           <button onClick={handleLogout} className="btn-secondary" style={{padding:'7px 14px',fontSize:'13px',borderRadius:'8px'}}>Odhlásit</button>
         </div>
       </nav>
