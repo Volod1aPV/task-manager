@@ -41,7 +41,7 @@ export default function LoginPage() {
     <div style={{minHeight:'100vh',display:'flex',background:'#f7f7f8'}}>
 
       {/* LEFT — branding */}
-      <div style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'48px',position:'relative',overflow:'hidden'}}>
+      <div className="login-left" style={{flex:1,background:'#111827',display:'flex',flexDirection:'column',justifyContent:'space-between',padding:'48px',position:'relative',overflow:'hidden'}}>
         {/* subtle bg pattern */}
         <div style={{position:'absolute',top:0,left:0,right:0,bottom:0,backgroundImage:'radial-gradient(circle at 20% 50%, rgba(124,58,237,0.15) 0%, transparent 60%), radial-gradient(circle at 80% 20%, rgba(79,70,229,0.1) 0%, transparent 50%)',pointerEvents:'none'}} />
 

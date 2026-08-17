@@ -151,8 +151,8 @@ function toggleTheme() {
           <div style={{width:'30px',height:'30px',background:'var(--btn-bg)',borderRadius:'8px',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--btn-text)',fontWeight:'800',fontSize:'14px'}}>T</div>
           <span style={{fontWeight:'700',fontSize:'16px',color:'var(--text-primary)'}}>TaskFlow</span>
         </div>
-        <div style={{display:'flex',alignItems:'center',gap:'8px'}}>
-          <span style={{color:'var(--text-faint)',fontSize:'13px'}}>{user?.email}</span>
+        <div className="nav-actions" style={{display:'flex',alignItems:'center',gap:'8px'}}>
+          <span className="nav-email" style={{color:'var(--text-faint)',fontSize:'13px'}}>{user?.email}</span>
           {user?.email === 'admin@taskflow.cz' && (
             <Link href="/admin" style={{fontSize:'13px',fontWeight:'500',color:'#7c3aed',background:'#f5f3ff',border:'1px solid #ede9fe',padding:'5px 12px',borderRadius:'8px'}}>👑 Admin</Link>
           )}
