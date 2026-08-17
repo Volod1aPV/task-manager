@@ -246,8 +246,9 @@ function toggleTheme() {
             <div style={{display:'flex',flexDirection:'column',gap:'8px'}}>
               {filtered.map((task, i) => {
                 const p = PRIORITIES[task.priority || 'medium']
+                const isOverdue = task.status !== 'done' && task.due_date && new Date(task.due_date) < new Date()
                 return (
-                  <div key={task.id} className="card" style={{padding:'14px 18px',display:'flex',alignItems:'center',gap:'12px',transition:'box-shadow 0.2s'}}
+                  <div key={task.id} className="card" style={{padding:'14px 18px',display:'flex',alignItems:'center',gap:'12px',transition:'box-shadow 0.2s', borderLeft: isOverdue ? '3px solid #f97316' : '3px solid transparent',}}
                     onMouseEnter={e => e.currentTarget.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'}
                     onMouseLeave={e => e.currentTarget.style.boxShadow='0 1px 4px rgba(0,0,0,0.05)'}>
 
@@ -263,7 +264,7 @@ function toggleTheme() {
                       </Link>
                       {task.due_date && (
                         <p style={{fontSize:'12px',color:'var(--text-faint)',marginTop:'2px'}}>
-                          📅 {new Date(task.due_date).toLocaleDateString('cs-CZ')}
+                          {isOverdue ? '⏰' : '📅'} {new Date(task.due_date).toLocaleDateString('cs-CZ')}{isOverdue ? ' — Prošlý!' : ''}
                         </p>
                       )}
                     </div>
